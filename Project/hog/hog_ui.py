@@ -113,7 +113,8 @@ def play_with(num_players):
     if num_players == 0:
         play_and_print(always_roll_5, always_roll_5)
     elif num_players == 1:
-        play_and_print(interactive_strategy(0), always_roll_5)
+        # Edited
+        play_and_print(interactive_strategy(0), final_strategy)
     elif num_players == 2:
         play_and_print(interactive_strategy(0), interactive_strategy(1))
     else:

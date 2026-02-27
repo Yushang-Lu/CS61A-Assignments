@@ -267,7 +267,14 @@ def make_averaged(original_function, times_called=1000):
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
-    
+    def average_function(*args):
+        count = times_called
+        total = 0
+        while count > 0:
+            total += original_function(*args)
+            count -= 1
+        return total / times_called
+    return average_function
     # END PROBLEM 8
 
 
@@ -281,6 +288,15 @@ def max_scoring_num_rolls(dice=six_sided, times_called=1000):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    score, new_score= 0, 0
+    count, final_count= 1, 1
+    while count < 11:
+        new_score = make_averaged(roll_dice, times_called)(count, dice)
+        if new_score > score:
+            score = new_score
+            final_count = count
+        count += 1
+    return final_count
     # END PROBLEM 9
 
 
@@ -325,14 +341,23 @@ def boar_strategy(score, opponent_score, threshold=11, num_rolls=6):
     points, and returns NUM_ROLLS otherwise. Ignore score and Sus Fuss.
     """
     # BEGIN PROBLEM 10
-    return num_rolls  # Remove this line once implemented.
+    if threshold <= boar_brawl(score, opponent_score):
+        return 0
+    else:
+        return num_rolls
+    # return num_rolls  # Remove this line once implemented.
     # END PROBLEM 10
 
 
 def sus_strategy(score, opponent_score, threshold=11, num_rolls=6):
     """This strategy returns 0 dice when your score would increase by at least threshold."""
     # BEGIN PROBLEM 11
-    return num_rolls  # Remove this line once implemented.
+    new_score = sus_update(0, score, opponent_score)
+    if threshold <= new_score - score:
+        return 0
+    else:
+        return num_rolls
+    # return num_rolls  # Remove this line once implemented.
     # END PROBLEM 11
 
 
@@ -340,9 +365,33 @@ def final_strategy(score, opponent_score):
     """Write a brief description of your final strategy.
 
     *** YOUR DESCRIPTION HERE ***
+    If you know the goal score (by default it is 100), there's no benefit to scoring more than the goal. 
+    Check whether you can win by rolling 0, 1 or 2 dice. 
+    If you are in the lead, you might decide to take fewer risks.
+    Instead of using a threshold, roll 0 whenever it would give you more points on average than rolling 6.
     """
     # BEGIN PROBLEM 12
-    return 6  # Remove this line once implemented.
+    if sus_update(0, score, opponent_score) >= GOAL:
+        return 0
+    
+    avg_sus = make_averaged(sus_update)
+    best_roll = 6
+    best_avg = -1.0
+
+    for num_rolls in range(1, 11):
+        avg_score = avg_sus(num_rolls, score, opponent_score)
+
+        if avg_score >= GOAL:
+            return num_rolls
+        
+        if avg_score > best_avg:
+           best_avg = avg_score
+           best_roll = num_rolls
+        elif avg_score == best_avg and num_rolls < best_roll:
+            best_roll = num_rolls
+
+    return best_roll
+    # return 6  # Remove this line once implemented.
     # END PROBLEM 12
 
 
